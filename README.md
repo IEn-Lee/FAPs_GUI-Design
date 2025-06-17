@@ -10,6 +10,6 @@ Stress urinary incontinence is a common condition that affects around 3,000,000 
 The aim of this work is to develop the control software and the user interface for an automated test bench for analyzing biofilm formation on the implant in contact with urine. This should make it possible to carry out long-term tests on the implant.
 
 The following tasks must be completed as part of the work:<br>
-  -Development of a touch screen UI for the Arduino Giga Display Shield, which allows to set how many micturition cycles per day should be conducted, how long each cycle will be (in seconds) and to start the system. Additionally it has to show the ambient temperature, the selected parameters and the elapsed time and micturition cycles.<br>
-  -Development of a control software, which uses the Arduino Motor Shield to control a UCV sterilization LED and a peristaltic pump and a BMP280 sensor to measure the ambient temperature.<br>
-  -Evaluation of the system (ease of use, functionality)
+-Development of a touch screen UI for the Arduino Giga Display Shield, which allows to set how many micturition cycles per day should be conducted, how long each cycle will be (in seconds) and to start the system. Additionally it has to show the ambient temperature, the selected parameters and the elapsed time and micturition cycles.<br>
+-Development of a control software, which uses the Arduino Motor Shield to control a UCV sterilization LED and a peristaltic pump and a BMP280 sensor to measure the ambient temperature.<br>
+-Evaluation of the system (ease of use, functionality)
