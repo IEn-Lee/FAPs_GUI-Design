@@ -1,0 +1,1 @@
+This version is the design of the Arduino User Interface version 1.0.0. It adopts a single-page layout, listing all the required features and performing an initial arrangement of the design.
