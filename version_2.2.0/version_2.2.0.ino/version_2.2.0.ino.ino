@@ -9,6 +9,13 @@
 Arduino_H7_Video          Display(800, 480, GigaDisplayShield);
 Arduino_GigaDisplayTouch  TouchDetector;
 
+unsigned long start_time = 0;
+bool is_running = false;
+lv_obj_t *elapsed_time_label = NULL;
+lv_obj_t *cycles_completed_label = NULL;
+lv_obj_t *cycle_duration_slider = NULL;
+
+
 typedef struct {
   lv_obj_t * slider;
   lv_obj_t * value_label;
@@ -107,10 +114,14 @@ void create_named_slider(lv_obj_t * parent, const char * title, int min, int max
   lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_VALUE_CHANGED, bundle);
   lv_obj_add_event_cb(btn_minus, minus_event_cb, LV_EVENT_CLICKED, bundle);
   lv_obj_add_event_cb(btn_plus, plus_event_cb, LV_EVENT_CLICKED, bundle);
+
+  if (strcmp(title, "Cycle Duration (sec)") == 0) {
+    cycle_duration_slider = slider;
+  }
+
 }
 
-// ---------- 新增 START 長按判斷邏輯 ----------
-// 全域變數
+// ---------- add START long press logic ----------
 lv_obj_t * confirm_dialog = NULL;
 
 static void event_handler(lv_event_t * e) {
@@ -121,18 +132,22 @@ static void event_handler(lv_event_t * e) {
 
   if (code == LV_EVENT_CLICKED) {
     if (strcmp(text, "STOP") == 0) {
-      show_confirm_dialog(btn); // 按下 STOP → 顯示確認視窗
+      show_confirm_dialog(btn); // press STOP → show confirm window
     } else {
       lv_label_set_text(label, "STOP");
       lv_obj_set_style_bg_color(btn, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+      start_time = millis(); // start timing
+      is_running = true;     // active time recoding
+      lv_label_set_text(elapsed_time_label, "00:00:00");      // reset time
+      lv_label_set_text(cycles_completed_label, "0");         // reset cycles count
     }
   }
 }
 
 void show_confirm_dialog(lv_obj_t * btn) {
-  if (confirm_dialog) return; // 避免重複
+  if (confirm_dialog) return; // aviod repeat
 
-  // 建立容器
+  // create container
   confirm_dialog = lv_obj_create(lv_scr_act());
   lv_obj_set_size(confirm_dialog, 500, 200);
   lv_obj_center(confirm_dialog);
@@ -140,13 +155,13 @@ void show_confirm_dialog(lv_obj_t * btn) {
   lv_obj_set_style_bg_color(confirm_dialog, lv_palette_lighten(LV_PALETTE_GREY, 3), 0);
   lv_obj_set_style_pad_all(confirm_dialog, 20, 0);
 
-  // 建立文字
+  // text
   lv_obj_t * msg = lv_label_create(confirm_dialog);
   lv_label_set_text(msg, "Stop the operation?");
   lv_obj_set_style_text_font(msg, &lv_font_montserrat_40, 0);
   lv_obj_align(msg, LV_ALIGN_TOP_MID, 0, 10);
 
-  // YES 按鈕
+  // YES button
   lv_obj_t * btn_yes = lv_btn_create(confirm_dialog);
   lv_obj_set_size(btn_yes, 100, 50);
   lv_obj_set_style_bg_color(btn_yes, lv_palette_main(LV_PALETTE_RED), 0);
@@ -156,7 +171,7 @@ void show_confirm_dialog(lv_obj_t * btn) {
   lv_obj_set_style_text_font(label_yes, &lv_font_montserrat_32, 0);
   lv_obj_center(label_yes);
 
-  // NO 按鈕
+  // NO button
   lv_obj_t * btn_no = lv_btn_create(confirm_dialog);
   lv_obj_set_size(btn_no, 100, 50);
   lv_obj_set_style_bg_color(btn_no, lv_palette_main(LV_PALETTE_BLUE), 0);
@@ -166,12 +181,13 @@ void show_confirm_dialog(lv_obj_t * btn) {
   lv_obj_set_style_text_font(label_no, &lv_font_montserrat_32, 0);
   lv_obj_center(label_no);
 
-  // 傳遞原始的 START/STOP 按鈕當 user_data
+  // send START/STOP as user_data
   lv_obj_add_event_cb(btn_yes, [](lv_event_t * e) {
     lv_obj_t * original_btn = (lv_obj_t *)lv_event_get_user_data(e);
     lv_obj_t * label = lv_obj_get_child(original_btn, 0);
     lv_label_set_text(label, "START");
     lv_obj_set_style_bg_color(original_btn, lv_color_hex(0x0000FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    is_running = false; // stop timing
     lv_obj_del(confirm_dialog);
     confirm_dialog = NULL;
   }, LV_EVENT_CLICKED, btn);
@@ -265,9 +281,15 @@ void lv_example_tabview_1(void) {
   create_status_cell(tab2, &humidity, "Humidity", "60%", lv_palette_main(LV_PALETTE_BLUE), 400, 200);
 
   creat_label(tab3, "Elapsed Time:", LV_ALIGN_TOP_LEFT, &lv_font_montserrat_40, 0, 20);
-  creat_label(tab3, "01:45:23", LV_ALIGN_TOP_RIGHT, &lv_font_montserrat_48, 0, 20);
+  elapsed_time_label = lv_label_create(tab3);
+  lv_label_set_text(elapsed_time_label, "00:00:00");
+  lv_obj_set_style_text_font(elapsed_time_label, &lv_font_montserrat_48, 0);
+  lv_obj_align(elapsed_time_label, LV_ALIGN_TOP_RIGHT, 0, 20);
   creat_label(tab3, "Cycles Completed:", LV_ALIGN_TOP_LEFT, &lv_font_montserrat_40, 0, 90);
-  creat_label(tab3, "5", LV_ALIGN_TOP_RIGHT, &lv_font_montserrat_48, 0, 90);
+  cycles_completed_label = lv_label_create(tab3);
+  lv_label_set_text(cycles_completed_label, "0");
+  lv_obj_set_style_text_font(cycles_completed_label, &lv_font_montserrat_48, 0);
+  lv_obj_align(cycles_completed_label, LV_ALIGN_TOP_RIGHT, 0, 90);
 
   create_monitor_chart(tab3, 0, 0);
   creat_label(tab3, "40", LV_ALIGN_OUT_BOTTOM_LEFT, &lv_font_montserrat_20, 35, 185);
@@ -287,4 +309,30 @@ void setup() {
 void loop() {
   lv_timer_handler();
   delay(5);
+
+  static unsigned long last_update = 0;
+  if (is_running && millis() - last_update >= 1000) {
+    last_update = millis();
+    unsigned long elapsed = (millis() - start_time) / 1000;
+    int hours = elapsed / 3600;
+    int minutes = (elapsed % 3600) / 60;
+    int seconds = elapsed % 60;
+
+    if (elapsed_time_label) {
+      char buf[16];
+      snprintf(buf, sizeof(buf), "%02d:%02d:%02d", hours, minutes, seconds);
+      lv_label_set_text(elapsed_time_label, buf);
+    }
+
+    if (cycle_duration_slider && cycles_completed_label) {
+      int cycle_duration_sec = lv_slider_get_value(cycle_duration_slider);
+      if (cycle_duration_sec > 0) {
+        int cycles_completed = elapsed / cycle_duration_sec;
+        char buf[8];
+        snprintf(buf, sizeof(buf), "%d", cycles_completed);
+        lv_label_set_text(cycles_completed_label, buf);
+      }
+    }
+  }
 }
+

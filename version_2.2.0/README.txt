@@ -1,2 +1,3 @@
 Version 2.2.0 is based on version 2.0.0 with added safety mechanisms when stopping the system.
 Unlike the false-touch prevention in version 2.1.0, this update introduces a confirmation dialog in the SETTING tab when switching from STOP to START mode. Users must confirm the action to prevent accidental operation.
+In addition, the actual counting of Elapsed Time and Cycles Completed has also been implemented.

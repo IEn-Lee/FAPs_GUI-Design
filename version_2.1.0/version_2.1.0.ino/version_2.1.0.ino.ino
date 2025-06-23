@@ -9,6 +9,14 @@
 Arduino_H7_Video          Display(800, 480, GigaDisplayShield);
 Arduino_GigaDisplayTouch  TouchDetector;
 
+unsigned long start_time = 0;
+bool is_running = false;
+lv_obj_t * elapsed_time_label = NULL;
+int cycle_duration_sec = 0; // 由 Slider 設定
+lv_obj_t *cycles_completed_label = NULL;
+
+
+
 typedef struct {
   lv_obj_t * slider;
   lv_obj_t * value_label;
@@ -51,6 +59,7 @@ static void plus_event_cb(lv_event_t * e) {
   update_slider_label(bundle);
 }
 
+lv_obj_t *cycle_duration_slider = NULL;
 void create_named_slider(lv_obj_t * parent, const char * title, int min, int max, const char * unit, lv_coord_t x, lv_coord_t y, int step) {
   lv_obj_t * title_label = lv_label_create(parent);
   lv_obj_set_height(title_label, 70);
@@ -107,9 +116,14 @@ void create_named_slider(lv_obj_t * parent, const char * title, int min, int max
   lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_VALUE_CHANGED, bundle);
   lv_obj_add_event_cb(btn_minus, minus_event_cb, LV_EVENT_CLICKED, bundle);
   lv_obj_add_event_cb(btn_plus, plus_event_cb, LV_EVENT_CLICKED, bundle);
+  // 當前這個 Slider 是 Cycle Duration，那就記住它
+  if (strcmp(title, "Cycle Duration (sec)") == 0) {
+      cycle_duration_slider = slider;
 }
 
-// ---------- 新增 START 長按判斷邏輯 ----------
+}
+
+// ---------- Logic for START long press  ----------
 lv_obj_t * tip_box = NULL;
 lv_timer_t * tip_timer = NULL;
 unsigned long press_start_time = 0;
@@ -147,16 +161,22 @@ static void event_handler(lv_event_t * e) {
       }
 
       // Build new hint
-      tip_box = lv_label_create(lv_scr_act());
-      lv_label_set_text(tip_box, "Please press for more than 3 seconds \nto STOP the system");
-      lv_obj_set_style_text_font(tip_box, &lv_font_montserrat_34, 0);
+      // 建立一個背景容器（視窗）
+      tip_box = lv_obj_create(lv_scr_act());
+      lv_obj_set_size(tip_box, 780, 300); // ✅ 設定提示框大小
+      lv_obj_set_style_radius(tip_box, 8, 0);
       lv_obj_set_style_bg_color(tip_box, lv_color_hex(0xEEEEEE), 0);
-      lv_obj_set_style_bg_opa(tip_box, LV_OPA_COVER, 0);
-      lv_obj_set_style_pad_all(tip_box, 8, 0);
-      lv_obj_set_style_radius(tip_box, 6, 0);
-      lv_obj_set_style_text_color(tip_box, lv_color_hex(0x000000), 0);
+      lv_obj_set_style_bg_opa(tip_box, 245, 0);
+      lv_obj_set_style_pad_all(tip_box, 12, 0);
+      lv_obj_align(tip_box, LV_ALIGN_CENTER, 0, 0); // 或對齊按鈕用 lv_obj_align_to()
 
-      lv_obj_align_to(tip_box, btn, LV_ALIGN_OUT_TOP_MID, 0, -40);
+      // 在容器中加入一個 label 作為文字
+      lv_obj_t * tip_label = lv_label_create(tip_box);
+      lv_label_set_text(tip_label, "Please press for more than 3 seconds\nto STOP the system");
+      lv_obj_set_style_text_font(tip_label, &lv_font_montserrat_40, 0);
+      lv_obj_set_style_text_line_space(tip_label, 15, 0);
+      lv_obj_set_style_text_color(tip_label, lv_color_hex(0x000000), 0);
+      lv_obj_center(tip_label);
 
       // Delete hint after 3.5 second
       tip_timer = lv_timer_create(close_tip_cb, 3500, NULL);
@@ -169,13 +189,19 @@ static void event_handler(lv_event_t * e) {
       if (press_duration >= 3000) {
         lv_label_set_text(label, "START");
         lv_obj_set_style_bg_color(btn, lv_color_hex(0x0000FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+        is_running = false;
       }
     }
     else if (strcmp(text, "START") == 0) {
       lv_label_set_text(label, "STOP");
       lv_obj_set_style_bg_color(btn, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+      start_time = millis();
+      is_running = true;
+      // 重設時間顯示
+      lv_label_set_text(elapsed_time_label, "00:00:00");
     }
   }
+
 }
 // ------------------------------------------------
 
@@ -260,9 +286,16 @@ void lv_example_tabview_1(void) {
   create_status_cell(tab2, &humidity, "Humidity", "60%", lv_palette_main(LV_PALETTE_BLUE), 400, 200);
 
   creat_label(tab3, "Elapsed Time:", LV_ALIGN_TOP_LEFT, &lv_font_montserrat_40, 0, 20);
-  creat_label(tab3, "01:45:23", LV_ALIGN_TOP_RIGHT, &lv_font_montserrat_48, 0, 20);
+  elapsed_time_label = lv_label_create(tab3);
+  lv_label_set_text(elapsed_time_label, "00:00:00");
+  lv_obj_set_style_text_font(elapsed_time_label, &lv_font_montserrat_48, 0);
+  lv_obj_align(elapsed_time_label, LV_ALIGN_TOP_RIGHT, 0, 20);
+
   creat_label(tab3, "Cycles Completed:", LV_ALIGN_TOP_LEFT, &lv_font_montserrat_40, 0, 90);
-  creat_label(tab3, "5", LV_ALIGN_TOP_RIGHT, &lv_font_montserrat_48, 0, 90);
+  cycles_completed_label = lv_label_create(tab3);
+  lv_label_set_text(cycles_completed_label, "0");
+  lv_obj_set_style_text_font(cycles_completed_label, &lv_font_montserrat_48, 0);
+  lv_obj_align(cycles_completed_label, LV_ALIGN_TOP_RIGHT, 0, 90);
 
   create_monitor_chart(tab3, 0, 0);
   creat_label(tab3, "40", LV_ALIGN_OUT_BOTTOM_LEFT, &lv_font_montserrat_20, 35, 185);
@@ -282,4 +315,29 @@ void setup() {
 void loop() {
   lv_timer_handler();
   delay(5);
+
+  static unsigned long last_update = 0;
+  if (is_running && millis() - last_update >= 1000) {
+    last_update = millis();
+    unsigned long elapsed = (millis() - start_time) / 1000;
+    int hours = elapsed / 3600;
+    int minutes = (elapsed % 3600) / 60;
+    int seconds = elapsed % 60;
+
+    char buf[16];
+    snprintf(buf, sizeof(buf), "%02d:%02d:%02d", hours, minutes, seconds);
+    lv_label_set_text(elapsed_time_label, buf);
+
+    if (cycle_duration_slider) {
+      cycle_duration_sec = lv_slider_get_value(cycle_duration_slider);
+      if (cycle_duration_sec > 0) {
+        int cycles_completed = elapsed / cycle_duration_sec;
+        char cycle_buf[8];
+        snprintf(cycle_buf, sizeof(cycle_buf), "%d", cycles_completed);
+        lv_label_set_text(cycles_completed_label, cycle_buf);
+      }
+    }
+  }
 }
+
+
