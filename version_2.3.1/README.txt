@@ -1,0 +1,1 @@
+Version 2.3.1 fixed the issue where the temperature would not display correctly after the sensor connection was accidentally disconnected and then reconnected.
