@@ -1,0 +1,2 @@
+Version 2.3.2 test increases the maximum value of micturition cycles/day to 480 in order to shorten the operation cycle.
+This allows developers to quickly verify whether the PUMP is operating cyclically according to the customized parameters set in the SETTING tab.

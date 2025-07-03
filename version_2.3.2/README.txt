@@ -1,0 +1,2 @@
+Version 2.3.2 implements actual pump control using the Arduino Motor Shield Rev3 in combination with the GROTHEN G928.
+In the DEVICE STATUS, the pump status will switch to blue "ON" while the pump is operating, and to red "OFF" when the pump stops.
