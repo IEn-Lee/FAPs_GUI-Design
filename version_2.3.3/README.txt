@@ -1,0 +1,2 @@
+Version 2.3.3 builds upon Version 2.3.2 by implementing the UV LED functionality. It continues to utilize the Arduino Motor Shield Rev3, with 12V output provided through pin B to power the UV LED.
+Once the system is activated via "START", the UV LED receives a constant 12V supply and remains continuously operational until the "STOP" command is issued. In the **DEVICE STATUS** section, the UV LED status will switch to blue "ON" while the UV LED is operating, and to red "OFF" when the UV LED stops.
