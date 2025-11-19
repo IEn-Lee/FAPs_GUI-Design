@@ -1,9 +1,12 @@
-## Arduino Cloud Sketch
-這個專案包含我在 Arduino Cloud 上開發的程式碼。  
-你可以從以下連結直接查看公開版本：
+## Arduino Cloud Online IDE Version (Highly recommended)
+This project provides an environment and configuration tailored for the Arduino Cloud Online IDE.
+This release is based on version 2.3.4, with layout optimizations specifically for the Arduino Cloud Online IDE and several known issues fixed.
+The list of fixes is documented here.
 
-🔗 **Arduino Cloud 公開連結**  
-https://create.arduino.cc/editor/xxxxxxx/xxxxxxx/preview
+Note: Please use LVGL version 8.3.10.
+
+🔗 **Arduino Cloud Public Link**  
+https://app.arduino.cc/sketches/8d74d1a2-4075-44a0-b8a9-69095435e36b?nav=Libraries&view-mode=preview
 
 
 # FAPs GUI-Design Project
