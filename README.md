@@ -1,12 +1,11 @@
 ## Arduino Cloud Online IDE Version (Highly recommended)
 This project provides an environment and configuration tailored for the Arduino Cloud Online IDE.
-This release is based on version 2.3.4, with layout optimizations specifically for the Arduino Cloud Online IDE and several known issues fixed.
+This release is based on version 2.3.4, with layout optimizations specifically for the Arduino Cloud Online IDE and several known issues fixed.  
 The list of fixes is documented [Here](https://github.com/IEn-Lee/FAPs_GUI-Design/tree/ad5a33e30aabcbbe0a82ba7cdb2494bed3a4a97c/Arduino%20Cloud%20Online%20IDE%20Revision%20Log).
 
-Note: Please use LVGL version 8.3.10.
-
 🔗 **Arduino Cloud Public Link**  
-https://app.arduino.cc/sketches/8d74d1a2-4075-44a0-b8a9-69095435e36b?nav=Libraries&view-mode=preview
+https://app.arduino.cc/sketches/8d74d1a2-4075-44a0-b8a9-69095435e36b?nav=Libraries&view-mode=preview  
+Note: Please use LVGL version 8.3.10.
 
 
 # FAPs GUI-Design Project
