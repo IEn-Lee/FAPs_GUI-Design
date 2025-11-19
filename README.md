@@ -1,7 +1,7 @@
 ## Arduino Cloud Online IDE Version (Highly recommended)
 This project provides an environment and configuration tailored for the Arduino Cloud Online IDE.
 This release is based on version 2.3.4, with layout optimizations specifically for the Arduino Cloud Online IDE and several known issues fixed.
-The list of fixes is documented here.
+The list of fixes is documented [here](Arduino Cloud Online IDE Revision Log).
 
 Note: Please use LVGL version 8.3.10.
 
