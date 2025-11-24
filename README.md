@@ -1,7 +1,7 @@
 ## Arduino Cloud Online IDE Version (Highly recommended)
 This project provides an environment and configuration tailored for the Arduino Cloud Online IDE.  
 This release is based on version 2.3.4, with layout optimizations specifically for the Arduino Cloud Online IDE and several known issues fixed.  
-(The list of fixes is documented [Here](https://github.com/IEn-Lee/FAPs_GUI-Design/tree/ad5a33e30aabcbbe0a82ba7cdb2494bed3a4a97c/Arduino%20Cloud%20Online%20IDE%20Revision%20Log))
+(The list of fixes is documented [Here](https://github.com/IEn-Lee/FAPs_GUI-Design/tree/ad5a33e30aabcbbe0a82ba7cdb2494bed3a4a97c/Arduino%20Cloud%20Online%20IDE%20Revision%20Log)
 
 🔗 **Arduino Cloud Public Link**  
 https://app.arduino.cc/sketches/b8669c34-cbed-4f0a-9a7e-f5ab9a029865?view-mode=preview  
